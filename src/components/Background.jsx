@@ -28,7 +28,13 @@ const Background = () => {
 
     return (
         <div className="container mt-5">
-            <h2 className="mb-4">Set Background Color</h2>
+        <div className='row'>
+        <div className='col-lg-12 card px-0'>
+        <div className="card-header">
+    Set Background Color
+  </div>
+           <div className=' p-4'>
+             <h2 className="mb-4"></h2>
             <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                     <label htmlFor="background_color" className="form-label">Background Color</label>
@@ -44,6 +50,11 @@ const Background = () => {
                 <button type="submit" className="btn btn-primary">Submit</button>
             </form>
             {message && <div className="mt-3 alert alert-info">{message}</div>}
+           </div>
+
+        </div>
+
+        </div>
         </div>
     );
 };

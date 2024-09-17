@@ -9,11 +9,13 @@ import NavbarDisplay from './components/Navbardisplay'; // Fixed casing for Navb
 import QuestionsManager from './components/QuestionsManager'; // Import the QuestionsManager component
 import Bgcolor from './components/Bgcolor';
 import Background from './components/Background';
+import BodyBackground from './components/BodyBackground';
 import AdminLogin from './components/AdminLogin';
 
 function App() {
   return (
     <Router>
+    <BodyBackground />
       <NavbarDisplay />
       <Bgcolor />
       <Routes>

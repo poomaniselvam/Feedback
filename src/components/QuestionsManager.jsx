@@ -69,62 +69,81 @@ const QuestionsManager = () => {
 
   return (
     <div>
-      <table className="table table-bordered">
-        <thead>
-          <tr>
-            <th>Question Label</th>
-            <th>Options</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {questions.map((question) => (
-            <tr key={question.id}>
-              <td>
-                <input
+
+
+<div className='container'>
+<div className='row'>
+  <div className='col-lg-12 card px-0 my-5'>
+  <div className="card-header">
+    Edit Question And Options 
+  </div>
+<div className=' px-3 my-4  input_css'>
+
+   
+     {questions.map((question) => (
+            <div className='row' key={question.id}>
+          
+              <div className='col-lg-4' >
+                <div className='d-flex'>
+                <i className="bi bi-question css_qustion d-block"></i>
+                  <input
+                  id='input'
                   type="text"
                   value={question.label}
                   onChange={(e) => handleInputChange(e, question.id)}
-                  className="form-control"
+                  className="form-control d-block my-2"
                   disabled={editableQuestionId !== question.id}
                 />
-              </td>
-              <td>
-                {Array.isArray(question.options) ? (
+                </div>
+              </div>
+              <div className='col-lg-4 mb-4' >
+             <ul>
+              
+                   {Array.isArray(question.options) ? (
                   question.options.map((option) => (
-                    <div key={option.id}>
+                    <li key={option.id}>
                       <input
+                      id='input'
                         type="text"
                         value={option.label}
                         onChange={(e) =>
                           handleInputChange(e, question.id, option.id)
                         }
-                        className="form-control"
+                        className="form-control my-2"
                         disabled={editableQuestionId !== question.id}
                       />
-                    </div>
+                    </li>
                   ))
                 ) : (
-                  <div>No options available</div>
+                  <div >No options available</div>
                 )}
-              </td>
-              <td>
+            
+             </ul>
+              </div>
+              <div className='col-lg-4' >
                 <button
                   onClick={() => handleEditClick(question.id)}
-                  className="btn btn-secondary"
+                  className="btn btn-primary shadow mt-2"
                 >
                   {editableQuestionId === question.id ? 'Cancel' : 'Edit'}
                 </button>
-              </td>
-            </tr>
+              </div>
+            </div>
           ))}
-        </tbody>
-      </table>
-      {editableQuestionId && (
+
+            {editableQuestionId && (
         <button onClick={handleSubmit} className="btn btn-primary mt-4">
           Save Changes
         </button>
       )}
+</div>
+  </div>
+</div>
+
+</div>
+
+ 
+    
     </div>
   );
 };

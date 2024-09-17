@@ -116,97 +116,123 @@ const RatingTable = () => {
 
     return (
         <div className="container mt-4">
-                <Link to="/header" className="btn btn-info mb-3 ">
-                        <FaCog /> Custom Navbar
-                    </Link>
-                    <Link to="/question" className="btn btn-success mb-3 ml-3">
-                        <FaCog /> Custom Questions
-                    </Link>
-                      <Link to="/background" className="btn btn-success mb-3 ml-3">
-                        <FaCog /> Custom Bg color
-                    </Link>
-                 <Link to="/admin" className="btn btn-success mb-3 ml-3">
-                        <FaCog /> Custom email
-                    </Link>
+               <div className="card my-3">
+  <div className="card-header">
+    Customization Options
+  </div>
+  <div className="card-body">
+    <div className="d-flex justify-content-center justify-content-lg-around justify-content-md-around flex-wrap">
+      <Link to="/header" className="btn btn-light shadow mb-3 mr-3">
+        <FaCog /> Custom Navbar
+      </Link>
+      <Link to="/question" className="btn btn-light shadow mb-3 mr-3">
+        <i className="bi bi-question"></i> Custom Questions
+      </Link>
+      <Link to="/background" className="btn btn-light shadow mb-3 mr-3">
+       <i className="bi bi-palette-fill"></i> Custom Bg Color
+      </Link>
+      <Link to="/admin" className="btn btn-light shadow mb-3">
+       <i className="bi bi-envelope-at-fill"></i> Custom Email
+      </Link>
+    </div>
+  </div>
+</div>
 
-            <div className="row mb-3">
-                <div className="col-md-6">
-                    <input 
-                        type="text" 
-                        className="form-control" 
-                        ref={ratingRef} 
-                        placeholder="Enter rating (e.g., '4')" 
-                        onChange={handleSearch} 
-                    />
-                </div>
-                <div className="col-md-6 text-right">
-                    <CSVLink data={filteredData} filename={"ratings_data.csv"} className="btn btn-success mr-3">
-                        <FaFileCsv /> CSV
-                    </CSVLink>
-                    <button onClick={exportToExcel} className="btn btn-primary mr-3">
-                        <FaFileExcel /> Excel
-                    </button>
-                    <button onClick={exportToPDF} className="btn btn-danger">
-                        <FaFilePdf /> PDF
-                    </button>
-                
-                </div>
-            </div>
 
-            <div className="row">
-                <div className="col-md-12">
-                    <div className="table-responsive">
-                        <table className="table table-bordered table-striped">
-                            <thead className="thead-dark">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Mobile</th>
-                                    <th>Email</th>
-                                    <th>Rating</th>
-                                    <th>Question1</th>
-                                    <th>Question2</th>
-                                    <th>Comment</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {currentItems.map(item => (
-                                    <tr key={item.id}>
-                                        <td>{item.id}</td>
-                                        <td>{item.Name}</td>
-                                        <td>{item.Mobile}</td>
-                                        <td>{item.email}</td>
-                                        <td>{item.rating}</td>
-                                        <td>{item.question1}</td>
-                                        <td>{item.question2}</td>
-                                        <td>{item.comment}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+            <div className="card">
+  <div className="card-header">
+    Data Export and Table
+  </div>
+  <div className="card-body">
+    {/* Search Input and Export Buttons */}
+    <div className="row mb-3">
+      <div className="col-md-4">
+        <input 
+          type="text" 
+          className="form-control" 
+          ref={ratingRef} 
+          placeholder="Enter rating (e.g., '4')" 
+          onChange={handleSearch} 
+        />
+      </div>
+      <div className="col-md-8 my-4 my-lg-0 text-right">
+       <div className=' d-flex justify-content-around'>
+         <CSVLink 
+          data={filteredData} 
+          filename={"ratings_data.csv"} 
+          className="btn btn-success mr-3 shadow-sm d-block"
+        >
+          <FaFileCsv /> CSV
+        </CSVLink>
+        <button 
+          onClick={exportToExcel} 
+          className="btn btn-primary mr-3 shadow-sm d-block"
+        >
+          <FaFileExcel /> Excel
+        </button>
+        <button 
+          onClick={exportToPDF} 
+          className="btn btn-danger shadow-sm d-block"
+        >
+          <FaFilePdf /> PDF
+        </button>
+       </div>
+      </div>
+    </div>
 
-                    <div className="d-flex justify-content-between align-items-center mt-3">
-                        <button 
-                            onClick={handlePrevPage} 
-                            className="btn btn-secondary"
-                            disabled={currentPage === 1}
-                        >
-                            Previous
-                        </button>
-                        <div>
-                            {renderPaginationButtons()}
-                        </div>
-                        <button 
-                            onClick={handleNextPage} 
-                            className="btn btn-secondary"
-                            disabled={currentPage === totalPages}
-                        >
-                            Next
-                        </button>
-                    </div>
-                </div>
-            </div>
+    {/* Table */}
+    <div className="table-responsive">
+      <table className="table table-bordered table-striped table-hover">
+        <thead className="thead-dark">
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Mobile</th>
+            <th>Email</th>
+            <th>Rating</th>
+            <th>Question1</th>
+            <th>Question2</th>
+            <th>Comment</th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentItems.map(item => (
+            <tr key={item.id}>
+              <td>{item.id}</td>
+              <td>{item.Name}</td>
+              <td>{item.Mobile}</td>
+              <td>{item.email}</td>
+              <td>{item.rating}</td>
+              <td>{item.question1}</td>
+              <td>{item.question2}</td>
+              <td>{item.comment}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {/* Pagination Controls */}
+  <div className="card-footer d-flex justify-content-between align-items-center">
+    <button 
+      onClick={handlePrevPage} 
+      className="btn btn-secondary" 
+      disabled={currentPage === 1}
+    >
+      Previous
+    </button>
+    <div>{renderPaginationButtons()}</div>
+    <button 
+      onClick={handleNextPage} 
+      className="btn btn-secondary" 
+      disabled={currentPage === totalPages}
+    >
+      Next
+    </button>
+  </div>
+</div>
+
         </div>
     );
 };

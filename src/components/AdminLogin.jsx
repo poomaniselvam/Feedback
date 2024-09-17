@@ -33,26 +33,38 @@ const AdminLogin = () => {
   };
 
   return (
-    <div>
-      <h2>Admin Email</h2>
+    <div className='container mt-5'>
+     <div className='row'>
+     <div className='col-lg-12 card px-0'>
+     <div className="card-header">
+    Admin Email
+  </div>
+     <div className=' p-4'>
       {editing ? (
         <div>
           <div>
-            <label>Email:</label>
+            <label className="form-label">Email:</label>
             <input
+            className="form-control"
               type="email"
               ref={emailRef}
               defaultValue={adminEmail}
             />
           </div>
-          <button onClick={updateEmail}>Save</button>
+          <button className='btn btn-primary d-block mt-3' onClick={updateEmail}>Save</button>
         </div>
       ) : (
         <div>
-          <p><strong>Email:</strong> {adminEmail}</p>
-          <button onClick={() => setEditing(true)}>Edit Email</button>
+           <label className="form-label">Email: {adminEmail}</label> 
+          <button className='btn btn-primary d-block mt-3' onClick={() => setEditing(true)}>Edit Email</button>
         </div>
       )}
+
+     </div>
+
+     </div>
+
+     </div>
     </div>
   );
 };

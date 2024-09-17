@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./FeedbackForm.css"; // Make sure to update this CSS file with the new styles
+import { Modal, Button } from 'react-bootstrap';
+import "./FeedbackForm.css";
 
 export default function View() {
   const [formData, setFormData] = useState({
@@ -15,11 +16,18 @@ export default function View() {
   const [errors, setErrors] = useState({});
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [questions, setQuestions] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   useEffect(() => {
     axios.get("https://mediumblue-jellyfish-250677.hostingersite.com/api/question")
       .then(response => {
         setQuestions(response.data.questions);
+        const questionData = response.data.questions.reduce((acc, question) => {
+          acc[question.id] = [];
+          return acc;
+        }, {});
+        setFormData(prevState => ({ ...prevState, ...questionData }));
       })
       .catch(error => {
         console.error('There was an error fetching the questions!', error);
@@ -34,13 +42,13 @@ export default function View() {
     }));
   };
 
-  const handleCheckboxChange = (e, field) => {
+  const handleCheckboxChange = (e, questionId) => {
     const { value, checked } = e.target;
     setFormData(prevState => {
-      const updatedValue = checked
-        ? prevState[field] ? `${prevState[field]},${value}` : value
-        : prevState[field].split(",").filter(item => item !== value).join(",");
-      return { ...prevState, [field]: updatedValue };
+      const updatedQuestionValues = checked
+        ? [...(prevState[questionId] || []), value]
+        : (prevState[questionId] || []).filter(item => item !== value);
+      return { ...prevState, [questionId]: updatedQuestionValues };
     });
   };
 
@@ -53,18 +61,35 @@ export default function View() {
 
   const validateStep = () => {
     const newErrors = {};
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const namePattern = /^[a-zA-Z\s]+$/;
+    const mobilePattern = /^\d{10}$/;
+
     if (step === 1) {
       if (!formData.rating) newErrors.rating = "Rating is required.";
-      if (!formData.Name) newErrors.Name = "Name is required.";
-      if (!formData.email) newErrors.email = "Email is required.";
-      if (!formData.Mobile) newErrors.Mobile = "Mobile is required.";
+      if (!formData.Name) {
+        newErrors.Name = "Name is required.";
+      } else if (!namePattern.test(formData.Name)) {
+        newErrors.Name = "Name should contain only letters and spaces.";
+      }
+      if (!formData.email) {
+        newErrors.email = "Email is required.";
+      } else if (!emailPattern.test(formData.email)) {
+        newErrors.email = "Please enter a valid email address.";
+      }
+      if (!formData.Mobile) {
+        newErrors.Mobile = "Mobile number is required.";
+      } else if (!mobilePattern.test(formData.Mobile)) {
+        newErrors.Mobile = "Please enter a valid 10-digit mobile number.";
+      }
     } else if (step === 2) {
       questions.forEach(question => {
-        if (!formData[question.id]) {
+        if (!formData[question.id] || formData[question.id].length === 0) {
           newErrors[question.id] = "At least one option is required.";
         }
       });
     }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -79,11 +104,39 @@ export default function View() {
     setStep(1);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmitStep1 = () => {
     if (validateStep()) {
-      console.log("Submitting form data:", formData);
-      axios.post("https://mediumblue-jellyfish-250677.hostingersite.com/api/rating", formData, {
+      setShowConfirmModal(true);
+    }
+  };
+
+  const handleConfirmModalClose = () => {
+    setShowConfirmModal(false);
+  };
+
+  const handleConfirmContinue = () => {
+    setShowConfirmModal(false);
+    setStep(2);
+  };
+
+  const handleConfirmSubmit = () => {
+    setShowConfirmModal(false);
+    submitForm();
+  };
+
+  const submitForm = () => {
+    if (isSubmitting) return;
+
+    if (validateStep()) {
+      setIsSubmitting(true);
+
+      const submissionData = { ...formData };
+      questions.forEach(question => {
+        submissionData[question.id] = submissionData[question.id].join(',');
+      });
+
+      console.log("Submitting form data:", submissionData);
+      axios.post("https://mediumblue-jellyfish-250677.hostingersite.com/api/rating", submissionData, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -93,8 +146,20 @@ export default function View() {
         setShowSuccessPopup(true);
       })
       .catch(error => {
-        console.error("There was an error submitting the form!", error.response || error.message);
-        alert("There was an error submitting the form!");
+        console.error("There was an error submitting the form!", error);
+        if (error.response) {
+          console.error("Data:", error.response.data);
+          console.error("Status:", error.response.status);
+          console.error("Headers:", error.response.headers);
+        } else if (error.request) {
+          console.error("No response received:", error.request);
+        } else {
+          console.error("Error setting up request:", error.message);
+        }
+        alert(`Error submitting form: ${error.message}`);
+      })
+      .finally(() => {
+        setIsSubmitting(false);
       });
     }
   };
@@ -125,7 +190,7 @@ export default function View() {
         <div className="card-body">
           <h2 className="text-center mb-4">Feedback Form</h2>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={(e) => e.preventDefault()}>
             {step === 1 && (
               <div className="mb-4">
                 <h4>Rating and Personal Information</h4>
@@ -213,7 +278,7 @@ export default function View() {
                           className="form-check-input"
                           id={`${question.id}_${option.label}`}
                           value={option.label}
-                          checked={formData[question.id]?.split(",").includes(option.label) || false}
+                          checked={formData[question.id]?.includes(option.label) || false}
                           onChange={(e) => handleCheckboxChange(e, question.id)}
                         />
                         <label
@@ -244,30 +309,64 @@ export default function View() {
             )}
 
             <div className="d-flex justify-content-between">
-              {step === 2 && (
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={handlePrevious}
-                >
-                  Previous
-                </button>
-              )}
               {step === 1 ? (
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={handleNext}
-                >
-                  Next
-                </button>
+                <>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={handleSubmitStep1}
+                    disabled={isSubmitting}
+                  >
+                    Submit
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={handleNext}
+                    disabled={isSubmitting}
+                  >
+                    Next ?
+                  </button>
+                </>
               ) : (
-                <button type="submit" className="btn btn-success">
-                  Submit
-                </button>
+                <>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={handlePrevious}
+                    disabled={isSubmitting}
+                  >
+                    Previous
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn btn-success" 
+                    onClick={submitForm}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit"}
+                  </button>
+                </>
               )}
             </div>
           </form>
+
+          {/* Confirmation Modal */}
+          <Modal show={showConfirmModal} onHide={handleConfirmModalClose}>
+            <Modal.Header closeButton>
+              <Modal.Title>Confirm Action</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>Do you want to continue to more questions?</Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleConfirmSubmit}>
+                No, submit now
+              </Button>
+              <Button variant="primary" onClick={handleConfirmContinue}>
+                Yes, continue
+              </Button>
+            </Modal.Footer>
+          </Modal>
+
           {showSuccessPopup && (
             <SuccessPopup onClose={() => setShowSuccessPopup(false)} />
           )}
